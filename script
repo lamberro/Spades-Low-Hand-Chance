@@ -1,0 +1,133 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <ctime>
+#include <cstdlib>
+
+using namespace std;
+
+//card class
+class card{
+    private:
+    int suit; //1-4, Spade, Heart, Club, Diamond
+    int number; //1-13
+    public:
+    void set_suit(int x){
+        suit = x;
+    }
+    void set_number(int x){
+        number = x;
+    }
+    int get_suit(){
+        return suit;
+    }
+    int get_number(){
+        return number;
+    }
+};
+
+//print card
+void print_card(card * c){
+    //print number
+    bool face = false;
+    if(c->get_number() == 1){
+        cout << "Ace";
+        face = true;
+    }
+    if(c->get_number() == 11){
+        cout << "Jack";
+        face = true;
+    }
+    if(c->get_number() == 12){
+        cout << "Queen";
+        face = true;
+    }
+    if(c->get_number() == 13){
+        cout << "King";
+        face = true;
+    }
+    if(face == false)
+        cout << c->get_number();
+    cout << " of ";
+    //print suit
+    if(c->get_suit() == 1)
+        cout << "Spades";
+    if(c->get_suit() == 2)
+        cout << "Hearts";
+    if(c->get_suit() == 3)
+        cout << "Clubs";
+    if(c->get_suit() == 4)
+        cout << "Diamonds";
+    cout << endl;
+}
+
+vector<card*> generate_hand(vector<card*> deck){
+    random_shuffle(deck.begin(), deck.end());
+    vector<card*> hand;
+    for(int i=0; i<13; i++){
+        hand.push_back(deck[i]);
+        //print_card(hand[i]);
+    }
+    return hand;
+}
+
+bool is_low_hand(vector<card*> hand){
+    int spades = 0;
+    int hearts = 0;
+    int clubs = 0;
+    int diamonds = 0;
+    int highs = 0;
+    for(int i=0; i<hand.size(); i++){
+        if(hand[i]->get_suit() == 1)
+            spades++;
+        if(hand[i]->get_suit() == 2)
+            hearts++;
+        if(hand[i]->get_suit() == 3)
+            clubs++;
+        if(hand[i]->get_suit() == 4)
+            diamonds++;
+        if(hand[i]->get_number() == 1 || hand[i]->get_number() == 13)
+            highs++;
+    }
+    //cout << spades << ", " << hearts << ", " << clubs << ", " << diamonds << ", " << highs << endl;
+    if(spades > 3)
+        return false;
+    if(highs < 2)
+        return true;
+    if(hearts > 6 || clubs > 6 || diamonds > 6)
+        return true;
+    return false;
+}
+
+int main()
+{
+    //initialize random
+    srand(unsigned(time(0)));
+    
+    //number of low hands to generate
+    int n = 20000;
+    
+    //create card deck
+    vector<card*> deck;
+    for(int i=1; i<5; i++){
+        for(int j=1;j<14;j++){
+            card * temp_card = new card;
+            temp_card->set_number(j);
+            temp_card->set_suit(i);
+            deck.push_back(temp_card);
+        }
+    }
+    
+    //generate n hands and see how many are low hands
+    int num_low_hands = 0;
+    for(int i = 0; i < n; i++){
+        vector<card*> temp_hand = generate_hand(deck);
+        if(is_low_hand(temp_hand))
+            num_low_hands++;
+    }
+
+    n = n/100;
+    cout << num_low_hands/n << "% of hands are low hands" << endl;
+
+    return 0;
+}
